@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using OdeToFood.Core;
@@ -12,10 +13,14 @@ namespace OdeToFood.Pages.Restaurants
         private readonly IConfiguration config;
         private readonly IRestaurantData restaurantData;
 
+        // Note: [BindProperty] will look for "name="searchTerm"" in the HTML and bind it to this proerty. Normally only works on POST
+        [BindProperty(SupportsGet = true)] 
+        public string SearchTerm { get; set; }
+
         // These are the fields our UI has access to
         public string Message { get; set; }
         public IEnumerable<Restaurant> Restaurants { get; set; }
-        
+
         // This constructor is kinda magic
         // config = appsettings.Development.json
         // restrauntData = An interface whose implementation is being injected. Defined in "Startup.cs"
@@ -31,7 +36,7 @@ namespace OdeToFood.Pages.Restaurants
         public void OnGet()
         {
             Message = config["message"];
-            Restaurants = restaurantData.GetAll();
+            Restaurants = restaurantData.GetRestaurantsByName(SearchTerm);
         }
     }
 }
