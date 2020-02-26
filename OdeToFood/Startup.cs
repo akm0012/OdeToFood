@@ -33,7 +33,7 @@ namespace OdeToFood
                 });
          
             // This is where you tell the Project, "If you need a 'IRestaurantData' use, 'InMemoryRestaurantData'" or whatever the second parameter is.
-            services.AddSingleton<IRestaurantData, InMemoryRestaurantDataBase>();
+            services.AddScoped<IRestaurantData, SqlRestaurantData>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
