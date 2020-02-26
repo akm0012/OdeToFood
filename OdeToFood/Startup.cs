@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,8 +27,13 @@ namespace OdeToFood
         {
             services.AddRazorPages();
 
+            services.AddDbContextPool<OdeToFoodDbContext>(options =>
+                {
+                    options.UseSqlServer(Configuration.GetConnectionString("OdeToFoodDb"));
+                });
+         
             // This is where you tell the Project, "If you need a 'IRestaurantData' use, 'InMemoryRestaurantData'" or whatever the second parameter is.
-            services.AddSingleton<IRestaurantData, InMemoryRestaurantData>();
+            services.AddSingleton<IRestaurantData, InMemoryRestaurantDataBase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
