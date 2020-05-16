@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using OdeToFood.Data;
 
 namespace OdeToFood
@@ -39,8 +40,9 @@ namespace OdeToFood
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -52,8 +54,29 @@ namespace OdeToFood
                 app.UseHsts();
             }
 
-            app.Use(SayHelloMiddleware);
-
+            app.Use(async (context, next) =>
+            {
+                logger.LogInformation("Request: " + context.Request.Path);
+                
+                if (context.Request.Path.StartsWithSegments("/hello"))
+                {
+                    await context.Response.WriteAsync("Hello, World!");
+                }
+                else
+                {
+                    await next.Invoke();
+                    if (context.Response.StatusCode == 200)
+                    {
+                        // Could do a thing
+                    }
+                }
+            });
+            
+            
+            // app.Use(SayHelloMiddleware(logger));
+            
+            // app.Use(CustomLoggerMiddleWare);
+            
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -68,7 +91,20 @@ namespace OdeToFood
             });
         }
 
-        private RequestDelegate SayHelloMiddleware(RequestDelegate nextMiddleWare)
+        // private RequestDelegate CustomLoggerMiddleWare(RequestDelegate arg)
+        // {
+        //     return async context =>
+        //     {
+        //         if (context.Request != null)
+        //         {
+        //             _logger.LogError("Network call made: " + context.Request.Body);
+        //         }
+        //         
+        //         await arg(context);
+        //     };
+        // }
+
+        private RequestDelegate SayHelloMiddleware(ILogger<Startup> logger, RequestDelegate nextMiddleWare)
         {
             return async context =>
             {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using OdeToFood.Core;
 using OdeToFood.Data;
 
@@ -12,10 +13,10 @@ namespace OdeToFood.Pages.Restaurants
     {
         private readonly IConfiguration config;
         private readonly IRestaurantData restaurantData;
+        private readonly ILogger<List> _logger;
 
         // Note: [BindProperty] will look for "name="searchTerm"" in the HTML and bind it to this proerty. Normally only works on POST
-        [BindProperty(SupportsGet = true)] 
-        public string SearchTerm { get; set; }
+        [BindProperty(SupportsGet = true)] public string SearchTerm { get; set; }
 
         // These are the fields our UI has access to
         public string Message { get; set; }
@@ -24,10 +25,14 @@ namespace OdeToFood.Pages.Restaurants
         // This constructor is kinda magic
         // config = appsettings.Development.json
         // restrauntData = An interface whose implementation is being injected. Defined in "Startup.cs"
-        public List(IConfiguration config, IRestaurantData restaurantData)
+        public List(
+            IConfiguration config,
+            IRestaurantData restaurantData, 
+            ILogger<List> logger)
         {
             this.config = config;
             this.restaurantData = restaurantData;
+            _logger = logger;
         }
 
 
@@ -35,6 +40,8 @@ namespace OdeToFood.Pages.Restaurants
         // This is where you should get all the data you will need to populate the fields above that the UI will use.
         public void OnGet()
         {
+            _logger.LogError("Executing Listmodel");
+            
             Message = config["message"];
             Restaurants = restaurantData.GetRestaurantsByName(SearchTerm);
         }
